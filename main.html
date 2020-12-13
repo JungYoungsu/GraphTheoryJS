@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<script src="https://unpkg.com/konva@7.2.0/konva.min.js"></script>
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+		<meta charset="utf-8" />
+		<link rel="stylesheet" href="css/style.css">
+		<script src="js/graph.js"></script>
+		<script src="js/algo.js"></script>
+		<script src="js/ui.js"></script>
+	</head>
+	<body>
+		<div id="main">
+			<div class="leftdiv">
+				<div id="containerV"></div>
+				<div class="leftdiv" style="padding-left:40%;">
+					V그룹 Vertex
+					<select id="selectV">
+					</select> 
+					
+					<input type="button" id="setEdgeV" class="setEdgeBtn" value="Edge설정">
+					<input type="button" id="rmvVertexV" class="rmvVertexBtn" value="VertexCut">
+				</div>
+			</div>
+			<div class="leftdiv">
+				<div id="containerU"></div>
+				<div class="leftdiv" style="padding-left:40%;">
+					U그룹 Vertex
+					<select id="selectU">
+					</select> 
+					
+					<input type="button" id="setEdgeU" class="setEdgeBtn" value="설정">
+					<input type="button" id="rmvVertexU" class="rmvVertexBtn" value="VertexCut">
+				</div>
+			</div>
+			<div>
+				<input type="button" id="addVertexBtn" value="Vertex 추가"  style="margin-left:45%;">
+			</div>
+			<div>
+				<input type="button" id="runBtn" value="동형 확인 실행"  style="margin-left:45.5%;">
+			</div>
+		</div>
+		<div id="screen"></div>
+		<div id="edgePopup">
+			<input type='hidden' id='edgePopupVertexGroup'>
+			<input type='hidden' id='edgePopupVertexNumber'>
+			<div id="edgePopupSubject"></div>
+			<div id="edgePopupEdgeList"></div>
+			<div id="edgePopupBottom"><input type="button" id="edgePopupSubmit" value="확인"></div>
+		</div>
+	</body>
+	<script>	
+		const graphV = new Graph();
+		const graphU = new Graph();
+		const colorV = '#4aa8d8';
+		const colorU = '#81c147';
+		
+		var NUM = 0;
+		var width = window.innerWidth;
+		var height = window.innerHeight;
+
+		const stageV = new Konva.Stage({
+			container: 'containerV',
+			width: width/2,
+			height: height-100,
+		});
+		const stageU = new Konva.Stage({
+			container: 'containerU',
+			width: width/2,
+			height: height-100,
+		});
+
+		const layerV = new Konva.Layer();
+		const layerU = new Konva.Layer();
+		
+		stageV.add(layerV);
+		stageU.add(layerU);
+		
+		addVertex(++NUM);
+		addVertex(++NUM);
+		
+		$("#addVertexBtn").click(function() {
+			addVertex(++NUM);
+		});
+		
+		$("#runBtn").click(function() {
+			var matV = create2DMatrix(graphV);
+			var matU = create2DMatrix(graphU);
+			var result = runAlgo(matV, matU);
+			alert(result.fin.msg + "\n수행시간:"+ result.time+"ms");
+			if (result.fin.result) {
+				moveAnimation(1200, result.fin.map); //moveAnimation(delay, map)
+			}
+		});
+		
+		$(".setEdgeBtn").click( function() {
+			var id = $(this).attr('id');
+			if (id=="setEdgeV") {
+				var groupClass = "V"
+				var graph = graphV;
+			} else if (id=="setEdgeU") {
+				var groupClass = "U"
+				var graph = graphU;
+			}
+			
+			$("#screen").show();
+			$("#edgePopup").show();
+			var host = Number($("#select" + groupClass + " option:selected").val());
+			$("#edgePopupVertexGroup").val(groupClass);
+			$("#edgePopupVertexNumber").val(host);
+			
+			$("#edgePopupSubject").html("<strong>" + groupClass + host+" Edge</strong>");
+			for(step = host+1; step <= NUM; step++) {
+				var checked = (graph.nodes.get(host).isAdjacent( graph.nodes.get(step) ) ? ' checked' : '');
+				$("#edgePopupEdgeList").append(groupClass + step +"<input type='checkbox' id='chkboxEdge"+groupClass+host+"_"+step+"'" + checked + "> &nbsp;");
+			}
+		});
+		
+		$(".rmvVertexBtn").click( function() {
+			var id = $(this).attr('id');
+			if (id=="rmvVertexV") {
+				var groupClass = "V"
+				var layer = layerV;
+			} else if (id=="rmvVertexU") {
+				var groupClass = "U"
+				var layer = layerU;
+			}
+			var host = Number($("#select" + groupClass + " option:selected").val());
+			removeVertex (groupClass, host);
+			layer.draw();
+		});
+		
+		
+		$("#edgePopupSubmit").click( function() {
+			$("#screen").hide();
+			$("#edgePopup").hide();
+			
+			var group = $("#edgePopupVertexGroup").val();
+			var host = Number($("#edgePopupVertexNumber").val());
+			
+			for(var step = host+1; step <= NUM; step++) {
+				addRemoveEdge(group, host, step, $("#chkboxEdge"+ group + host +"_" + step).is(":checked"))
+			}
+			layerV.draw();
+			layerU.draw();
+			$("#edgePopupEdgeList").html("");
+		});
+		
+		
+
+	</script>
+</html>

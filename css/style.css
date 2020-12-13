@@ -1,0 +1,41 @@
+body {
+	margin: 0;
+	padding: 0;
+	overflow: hidden;
+	background-color: #f0f0f0;
+}
+div.leftdiv {
+	float: left;
+}
+
+div#screen {
+	position: absolute;
+	z-index: 5;
+	width: 100%;
+	height: 100%;
+	top: 0%;
+	left: 0%;
+	background-color: grey;
+	opacity: 0.4;
+	display: none;
+}
+div#edgePopup {
+	position: absolute;
+	z-index: 10;
+	top: 50%;
+	left: 50%;
+	background-color: white;
+	border: 2px groove #bcbcbc;
+	padding: 20px;
+	align: center;
+	transform: translate(-50%, -50%);
+	display:none;
+}
+div#edgePopupSubject {
+	text-align: center;
+	left: 50%
+}
+div#edgePopupBottom {
+	text-align: center;
+}
+		
